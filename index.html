@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium SWP & FIRE Dashboard | Wealth Simulator</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Local Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header Section -->
+    <header>
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+        <div class="logo-title">
+          <h1>Wealth Planner</h1>
+          <p>Systematic Withdrawals & FIRE Calculator Suite</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode">
+          <i class="fa-solid fa-sun" id="theme-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-grid">
+      <!-- Left Panel: Mode Switcher & Inputs -->
+      <section class="inputs-panel">
+        <!-- Mode Switcher -->
+        <div class="mode-switcher">
+          <button class="mode-btn active" id="mode-swp-btn">
+            <i class="fa-solid fa-hand-holding-dollar"></i> SWP Planner
+          </button>
+          <button class="mode-btn" id="mode-fire-btn">
+            <i class="fa-solid fa-fire-flame-curved"></i> FIRE Planner
+          </button>
+        </div>
+
+        <!-- ==================== SWP INPUTS ==================== -->
+        <div id="swp-inputs" class="mode-inputs">
+          <h2 class="panel-title" style="margin-bottom:0.75rem;">
+            <i class="fa-solid fa-sliders"></i> SWP Parameters
+          </h2>
+          
+          <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <!-- Initial Investment -->
+            <div class="input-group">
+              <div class="input-label-container">
+                <span class="input-label">Initial Investment</span>
+              </div>
+              <div class="input-container-box">
+                <span class="input-addon addon-left">₹</span>
+                <input type="number" id="initial-investment-val" class="input-number has-addon-left" value="2500000" min="10000" max="100000000" step="10000">
+              </div>
+              <div class="slider-container">
+                <input type="range" id="initial-investment-slider" class="range-slider" min="50000" max="50000000" step="50000" value="2500000">
+              </div>
+            </div>
+
+            <!-- Deferment Switch -->
+            <div class="switch-container">
+              <span class="switch-label">
+                <i class="fa-solid fa-hourglass-start"></i> Defer / Hold Investment
+              </span>
+              <label class="switch">
+                <input type="checkbox" id="enable-hold">
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+
+            <!-- Hold Period Panel -->
+            <div id="hold-panel" class="conditional-panel">
+              <div class="input-row">
+                <div class="input-group">
+                  <span class="input-label">Hold Period</span>
+                  <div class="unit-select-container">
+                    <input type="number" id="hold-duration-val" class="input-number" value="5" min="1" max="360">
+                    <select id="hold-duration-unit" class="select-unit">
+                      <option value="years" selected>Yrs</option>
+                      <option value="months">Mos</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Hold SIP Toggle inside panel -->
+                <div class="input-group" style="justify-content: flex-end; padding-bottom: 0.2rem;">
+                  <div class="switch-container" style="padding: 0;">
+                    <span class="switch-label">Add Savings</span>
+                    <label class="switch">
+                      <input type="checkbox" id="enable-hold-sip">
+                      <span class="slider-switch"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <!-- Small slider for hold duration -->
+              <div class="slider-container" style="margin-top:-0.15rem;">
+                <input type="range" id="hold-duration-slider" class="range-slider" min="1" max="30" step="1" value="5">
+              </div>
+
+              <!-- Hold SIP Panel -->
+              <div id="hold-sip-panel" class="conditional-panel" style="border-left-color: var(--accent-secondary); margin-top: 0.2rem;">
+                <div class="input-group">
+                  <span class="input-label">Monthly Addition</span>
+                  <div class="unit-select-container">
+                    <input type="number" id="hold-sip-val" class="input-number has-addon-left" value="10000" min="0" max="10000000" step="500">
+                    <select id="hold-sip-frequency" class="select-unit">
+                      <option value="monthly" selected>Monthly</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
+                  </div>
+                  <div class="slider-container">
+                    <input type="range" id="hold-sip-slider" class="range-slider" min="0" max="200000" step="1000" value="10000">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monthly Withdrawal (SWP) -->
+            <div class="input-group">
+              <div class="input-label-container">
+                <span class="input-label">Monthly Withdrawal (SWP)</span>
+              </div>
+              <div class="input-container-box">
+                <span class="input-addon addon-left">₹</span>
+                <input type="number" id="swp-amount-val" class="input-number has-addon-left" value="15000" min="0" max="10000000" step="500">
+              </div>
+              <div class="slider-container">
+                <input type="range" id="swp-amount-slider" class="range-slider" min="1000" max="500000" step="500" value="15000">
+              </div>
+            </div>
+
+            <!-- Duration & Rate of Return (Side-by-Side to reduce vertical scroll) -->
+            <div class="input-row">
+              <div class="input-group">
+                <span class="input-label">SWP Duration</span>
+                <div class="unit-select-container">
+                  <input type="number" id="duration-val" class="input-number" value="20" min="1" max="600">
+                  <select id="duration-unit" class="select-unit">
+                    <option value="years" selected>Yrs</option>
+                    <option value="months">Mos</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-label">Expected Return</span>
+                <div class="unit-select-container">
+                  <input type="number" id="expected-return-val" class="input-number has-addon-right" value="10" min="1" max="100" step="0.1">
+                  <select id="compounding-frequency" class="select-unit">
+                    <option value="yearly" selected>Yr Comp</option>
+                    <option value="monthly">Mo Comp</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <!-- Sliders in compact row -->
+            <div class="input-row" style="margin-top:-0.25rem;">
+              <div class="slider-container">
+                <input type="range" id="duration-slider" class="range-slider" min="1" max="50" step="1" value="20">
+              </div>
+              <div class="slider-container">
+                <input type="range" id="expected-return-slider" class="range-slider" min="1" max="30" step="0.1" value="10">
+              </div>
+            </div>
+
+            <!-- Advanced Toggles (Tax & Inflation) -->
+            <div class="advanced-toggle-header" id="advanced-toggle">
+              <span><i class="fa-solid fa-gear"></i> Advanced Features</span>
+              <i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+
+            <div id="advanced-panel" class="advanced-options-content">
+              <!-- Inflation -->
+              <div class="switch-container">
+                <span class="switch-label"><i class="fa-solid fa-arrow-trend-up"></i> Rate of Inflation (%)</span>
+                <label class="switch">
+                  <input type="checkbox" id="enable-inflation">
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div id="inflation-panel" class="conditional-panel">
+                <div class="input-group">
+                  <div class="input-container-box">
+                    <input type="number" id="inflation-rate-val" class="input-number has-addon-right" value="6" min="0" max="30" step="0.1">
+                    <span class="input-addon addon-right">%</span>
+                  </div>
+                  <div class="slider-container">
+                    <input type="range" id="inflation-rate-slider" class="range-slider" min="0" max="20" step="0.1" value="6">
+                  </div>
+                </div>
+                <div class="switch-container" style="padding:0;">
+                  <span class="switch-label" style="font-size:0.7rem;">Adjust SWP yearly for inflation</span>
+                  <label class="switch" style="width:34px; height:16px;">
+                    <input type="checkbox" id="adjust-swp-inflation" checked>
+                    <span class="slider-switch" style="border-radius:16px;"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Tax Rate -->
+              <div class="switch-container">
+                <span class="switch-label"><i class="fa-solid fa-percent"></i> Capital Gains Tax (%)</span>
+                <label class="switch">
+                  <input type="checkbox" id="enable-tax">
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div id="tax-panel" class="conditional-panel">
+                <div class="input-group">
+                  <div class="input-container-box">
+                    <input type="number" id="tax-rate-val" class="input-number has-addon-right" value="12.5" min="0" max="100" step="0.5">
+                    <span class="input-addon addon-right">%</span>
+                  </div>
+                  <div class="slider-container">
+                    <input type="range" id="tax-rate-slider" class="range-slider" min="0" max="50" step="0.5" value="12.5">
+                  </div>
+                </div>
+                <div class="switch-container" style="padding:0;">
+                  <span class="switch-label" style="font-size:0.7rem;">Deduct tax directly from corpus</span>
+                  <label class="switch" style="width:34px; height:16px;">
+                    <input type="checkbox" id="deduct-tax" checked>
+                    <span class="slider-switch" style="border-radius:16px;"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== FIRE INPUTS ==================== -->
+        <div id="fire-inputs" class="mode-inputs" style="display:none;">
+          <h2 class="panel-title" style="margin-bottom:0.75rem;">
+            <i class="fa-solid fa-fire"></i> FIRE Parameters
+          </h2>
+          
+          <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <!-- Current Savings & Target FIRE Corpus -->
+            <div class="input-row">
+              <div class="input-group">
+                <span class="input-label">Current Savings</span>
+                <div class="input-container-box">
+                  <span class="input-addon addon-left">₹</span>
+                  <input type="number" id="fire-savings-val" class="input-number has-addon-left" value="1000000" min="0" max="100000000" step="10000">
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-label">Target Corpus (₹X)</span>
+                <div class="input-container-box">
+                  <span class="input-addon addon-left">₹</span>
+                  <input type="number" id="fire-target-val" class="input-number has-addon-left" value="50000000" min="100000" max="1000000000" step="100000">
+                </div>
+              </div>
+            </div>
+            <!-- Sliders for Savings & Target -->
+            <div class="input-row" style="margin-top:-0.25rem;">
+              <div class="slider-container">
+                <input type="range" id="fire-savings-slider" class="range-slider" min="0" max="10000000" step="50000" value="1000000">
+              </div>
+              <div class="slider-container">
+                <input type="range" id="fire-target-slider" class="range-slider" min="1000000" max="100000000" step="500000" value="50000000">
+              </div>
+            </div>
+
+            <!-- Years to FIRE & Expected CAGR -->
+            <div class="input-row">
+              <div class="input-group">
+                <span class="input-label">Years to FIRE</span>
+                <input type="number" id="fire-years-val" class="input-number" value="15" min="1" max="50">
+              </div>
+              <div class="input-group">
+                <span class="input-label">Expected CAGR</span>
+                <div class="input-container-box">
+                  <input type="number" id="fire-cagr-val" class="input-number has-addon-right" value="12" min="1" max="30" step="0.1">
+                  <span class="input-addon addon-right">%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Sliders for Years and CAGR -->
+            <div class="input-row" style="margin-top:-0.25rem;">
+              <div class="slider-container">
+                <input type="range" id="fire-years-slider" class="range-slider" min="1" max="40" step="1" value="15">
+              </div>
+              <div class="slider-container">
+                <input type="range" id="fire-cagr-slider" class="range-slider" min="1" max="30" step="0.1" value="12">
+              </div>
+            </div>
+
+            <!-- Monthly Investment & Volatility (Std Dev) -->
+            <div class="input-row">
+              <div class="input-group">
+                <span class="input-label">Monthly SIP</span>
+                <div class="input-container-box">
+                  <span class="input-addon addon-left">₹</span>
+                  <input type="number" id="fire-sip-val" class="input-number has-addon-left" value="50000" min="0" max="5000000" step="1000">
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-label">Volatility (Std Dev)</span>
+                <div class="input-container-box">
+                  <input type="number" id="fire-volatility-val" class="input-number has-addon-right" value="15" min="0" max="50" step="0.5">
+                  <span class="input-addon addon-right">%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Sliders for SIP and Volatility -->
+            <div class="input-row" style="margin-top:-0.25rem;">
+              <div class="slider-container">
+                <input type="range" id="fire-sip-slider" class="range-slider" min="0" max="500000" step="1000" value="50000">
+              </div>
+              <div class="slider-container">
+                <input type="range" id="fire-volatility-slider" class="range-slider" min="0" max="30" step="0.5" value="15">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <button id="calculate-btn" class="btn-calculate">
+          <i class="fa-solid fa-circle-check"></i> Calculate Plan
+        </button>
+      </section>
+
+      <!-- Right Panel: Results Dashboard -->
+      <section class="results-panel">
+        
+        <!-- ==================== SWP RESULTS VIEW ==================== -->
+        <div id="swp-results-container" class="mode-section active">
+          <!-- Info Banner -->
+          <div class="info-banner" id="info-banner" style="display: none; margin-bottom: 0.75rem;">
+            <div class="info-banner-icon"><i class="fa-solid fa-info-circle"></i></div>
+            <div class="info-banner-content" id="info-banner-text">
+              <strong>Investment Period Info</strong>
+              Calculations loaded...
+            </div>
+          </div>
+
+          <!-- SWP KPIs -->
+          <div class="kpi-grid">
+            <div class="kpi-card kpi-total-invested">
+              <span class="kpi-label">Total Invested</span>
+              <span class="kpi-value" id="kpi-total-invested">₹—</span>
+              <span class="kpi-subtitle" id="kpi-total-invested-sub">Principal</span>
+            </div>
+            <div class="kpi-card kpi-start-swp">
+              <span class="kpi-label">Value at Start of SWP</span>
+              <span class="kpi-value" id="kpi-start-swp">₹—</span>
+              <span class="kpi-subtitle" id="kpi-start-swp-sub">After hold duration</span>
+            </div>
+            <div class="kpi-card kpi-total-withdrawn">
+              <span class="kpi-label">Total Payout</span>
+              <span class="kpi-value" id="kpi-total-withdrawn">₹—</span>
+              <span class="kpi-subtitle" id="kpi-total-withdrawn-sub">Total of all SWPs</span>
+            </div>
+            <div class="kpi-card kpi-total-tax">
+              <span class="kpi-label">Est. Capital Gains Tax</span>
+              <span class="kpi-value" id="kpi-total-tax">₹—</span>
+              <span class="kpi-subtitle" id="kpi-total-tax-sub">Tax details</span>
+            </div>
+            <div class="kpi-card kpi-final-balance">
+              <span class="kpi-label">Remaining Balance</span>
+              <span class="kpi-value" id="kpi-final-balance">₹—</span>
+              <span class="kpi-subtitle" id="kpi-final-balance-sub">Ending value</span>
+            </div>
+          </div>
+
+          <!-- SWP Charts -->
+          <div class="visuals-card" style="margin-top: 0.75rem;">
+            <div class="card-header">
+              <div class="card-header-left">
+                <h3 class="card-title">Wealth Growth & Withdrawal Timeline</h3>
+                <p class="card-subtitle">Trajectory of your investment corpus, total withdrawals, and tax burden</p>
+              </div>
+              <div class="button-group">
+                <button class="btn-tab active" id="btn-chart-balance">Corpus Balance</button>
+                <button class="btn-tab" id="btn-chart-vs">Cumulative comparison</button>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="wealthChart"></canvas>
+            </div>
+          </div>
+
+          <!-- SWP Table -->
+          <div class="schedule-card" style="margin-top: 0.75rem;">
+            <div class="card-header">
+              <div class="card-header-left">
+                <h3 class="card-title">Amortization Schedule</h3>
+                <p class="card-subtitle">Year-by-year and month-by-month breakdown of your investment</p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button id="export-csv-btn" class="btn-tab" style="background: var(--bg-input); border: 1px solid var(--border-color);" title="Export data to CSV">
+                  <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+                <div class="button-group">
+                  <button class="btn-tab active" id="btn-view-yearly">Yearly Summary</button>
+                  <button class="btn-tab" id="btn-view-monthly">Monthly Schedule</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="schedule-table" id="schedule-table">
+                <thead>
+                  <tr id="table-headers">
+                    <!-- Headers -->
+                  </tr>
+                </thead>
+                <tbody id="table-body">
+                  <!-- Rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="table-footer" id="table-pagination">
+              <span class="pagination-info" id="pagination-info">Showing page 1 of 1</span>
+              <div class="pagination-controls">
+                <button class="btn-pagination" id="btn-pagination-prev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-pagination" id="btn-pagination-next" disabled><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== FIRE RESULTS VIEW ==================== -->
+        <div id="fire-results-container" class="mode-section">
+          <!-- FIRE KPIs -->
+          <div class="kpi-grid">
+            <div class="kpi-card kpi-probability">
+              <span class="kpi-label">FIRE Probability</span>
+              <span class="kpi-value" id="kpi-fire-probability">0%</span>
+              <span class="kpi-subtitle" id="kpi-fire-probability-sub">From 500 Monte Carlo runs</span>
+            </div>
+            <div class="kpi-card kpi-req-sip">
+              <span class="kpi-label">Req. Monthly Investment</span>
+              <span class="kpi-value" id="kpi-fire-req-sip">₹0</span>
+              <span class="kpi-subtitle">To hit Target at Expected CAGR</span>
+            </div>
+            <div class="kpi-card kpi-req-cagr">
+              <span class="kpi-label">Required CAGR</span>
+              <span class="kpi-value" id="kpi-fire-req-cagr">0%</span>
+              <span class="kpi-subtitle">To hit Target with current SIP</span>
+            </div>
+          </div>
+
+          <!-- FIRE Monte Carlo Chart -->
+          <div class="visuals-card" style="margin-top: 0.75rem;">
+            <div class="card-header">
+              <div class="card-header-left">
+                <h3 class="card-title">Monte Carlo Scenarios & Projections</h3>
+                <p class="card-subtitle">Visualizes simulated trajectories including 10th (Conservative), 50th (Median) and 90th (Optimistic) percentiles</p>
+              </div>
+              <div class="button-group">
+                <button class="btn-tab active" id="btn-chart-fire-mc">Corpus Trajectories</button>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="fireChart"></canvas>
+            </div>
+          </div>
+
+          <!-- FIRE Summary Table -->
+          <div class="schedule-card" style="margin-top: 0.75rem;">
+            <div class="card-header">
+              <div class="card-header-left">
+                <h3 class="card-title">Percentile Wealth Breakdown</h3>
+                <p class="card-subtitle">Ending corpus estimates for each simulated year under various market market scenarios</p>
+              </div>
+              <button id="export-fire-csv-btn" class="btn-tab" style="background: var(--bg-input); border: 1px solid var(--border-color);" title="Export FIRE data to CSV">
+                <i class="fa-solid fa-file-csv"></i> Export CSV
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="schedule-table" id="fire-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th class="text-right">10th Percentile (Conservative)</th>
+                    <th class="text-right">50th Percentile (Median)</th>
+                    <th class="text-right">90th Percentile (Optimistic)</th>
+                  </tr>
+                </thead>
+                <tbody id="fire-table-body">
+                  <!-- Content dynamically generated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- JavaScript App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
